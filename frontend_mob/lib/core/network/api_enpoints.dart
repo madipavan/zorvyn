@@ -18,4 +18,6 @@ class ApiEnpoints {
   static const String goals = '/goals';
   static String updateGoal(String id) => '/goals/$id';
   static String deleteGoal(String id) => '/goals/$id';
+  //insights
+  static const String insights = '/insights';
 }
