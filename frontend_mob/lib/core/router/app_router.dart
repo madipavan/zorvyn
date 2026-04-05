@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_mob/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:frontend_mob/shared/widgets/main_shell.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
@@ -30,6 +32,16 @@ class AppRouter {
           path: '/auth/register',
           name: 'register',
           builder: (ctx, state) => const RegisterScreen(),
+        ),
+        ShellRoute(
+          builder: (ctx, state, child) => MainShell(child: child),
+          routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (ctx, state) => const DashboardScreen(),
+            ),
+          ],
         ),
       ],
     );

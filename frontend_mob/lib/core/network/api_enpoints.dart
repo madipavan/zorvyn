@@ -6,4 +6,5 @@ class ApiEnpoints {
   static final String register = "/auth/signup";
   static final String logout = "/auth/logout";
   static final String refresh = "/auth/refresh";
+  static final String dashboardSummary = "/dashboard/summary";
 }
