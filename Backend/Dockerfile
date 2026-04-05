@@ -1,12 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["Backend.slnx", "./"]
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["API/API.csproj", "API/"]
-RUN dotnet restore "Backend.slnx"
+
+RUN dotnet restore "API/API.csproj"
 
 COPY . .
 WORKDIR "/src/API"
