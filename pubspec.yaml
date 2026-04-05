@@ -37,7 +37,7 @@ dependencies:
  
   go_router: ^13.2.0
  
-  get_it: ^7.7.0
+  get_it: ^9.2.1
   injectable: ^2.4.1
  
   dio: ^5.4.3

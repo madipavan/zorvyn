@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_mob/core/network/api_enpoints.dart';
+import 'package:frontend_mob/core/network/auth_event_bus.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -11,10 +13,9 @@ class DioClient {
   DioClient(this._storage) {
     dio = Dio(
       BaseOptions(
-        // TODO: Replace with your backend base URL
-        baseUrl: 'https://api.yourserver.com/v1',
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
+        baseUrl: ApiEnpoints.localBaseUrl,
+        connectTimeout: const Duration(seconds: 40),
+        receiveTimeout: const Duration(seconds: 40),
         headers: {'Content-Type': 'application/json'},
       ),
     );
@@ -56,6 +57,7 @@ class _AuthInterceptor extends Interceptor {
         return handler.resolve(response);
       } else {
         await _storage.deleteAll();
+        AuthEventBus.instance.add(AuthEvent.sessionExpired);
       }
     }
     handler.next(err);
