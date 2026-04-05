@@ -13,7 +13,7 @@ class DioClient {
   DioClient(this._storage) {
     dio = Dio(
       BaseOptions(
-        baseUrl: ApiEnpoints.localBaseUrl,
+        baseUrl: ApiEnpoints.productionBaseUrl,
         connectTimeout: const Duration(seconds: 40),
         receiveTimeout: const Duration(seconds: 40),
         headers: {'Content-Type': 'application/json'},
@@ -42,6 +42,10 @@ class _AuthInterceptor extends Interceptor {
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
+    final deviceId = await _storage.read(key: 'device_id');
+    if (deviceId != null) {
+      options.headers['X-Device-Id'] = deviceId;
+    }
     handler.next(options);
   }
 
@@ -66,10 +70,11 @@ class _AuthInterceptor extends Interceptor {
   Future<bool> _refreshToken() async {
     try {
       final refresh = await _storage.read(key: 'refresh_token');
-      if (refresh == null) return false;
+      final deviceId = await _storage.read(key: 'device_id');
+      if (refresh == null || deviceId == null) return false;
       final res = await _dio.post(
-        '/auth/refresh',
-        data: {'refresh_token': refresh},
+        ApiEnpoints.refresh,
+        data: {'refreshToken': refresh, "deviceId": deviceId},
       );
       await _storage.write(
         key: 'access_token',

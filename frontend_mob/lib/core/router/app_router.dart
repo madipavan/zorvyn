@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_mob/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:frontend_mob/shared/widgets/main_shell.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../network/auth_event_bus.dart';
 
 @singleton
@@ -17,10 +20,15 @@ class AppRouter {
 
   AppRouter(this._storage) {
     router = GoRouter(
-      initialLocation: '/home',
+      initialLocation: '/splash',
       redirect: _guard,
       refreshListenable: _AuthListenable(),
       routes: [
+        GoRoute(
+          path: '/splash',
+          name: 'splash',
+          builder: (ctx, state) => const SplashScreen(),
+        ),
         GoRoute(
           path: '/auth/login',
           name: 'login',
@@ -30,6 +38,16 @@ class AppRouter {
           path: '/auth/register',
           name: 'register',
           builder: (ctx, state) => const RegisterScreen(),
+        ),
+        ShellRoute(
+          builder: (ctx, state, child) => MainShell(child: child),
+          routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (ctx, state) => const DashboardScreen(),
+            ),
+          ],
         ),
       ],
     );
@@ -46,6 +64,9 @@ class AppRouter {
   }
 
   Future<String?> _guard(BuildContext ctx, GoRouterState state) async {
+    final onSplash = state.matchedLocation == '/splash';
+    if (onSplash) return null;
+
     final token = await _storage.read(key: 'access_token');
     final onAuth = state.matchedLocation.startsWith('/auth');
 
