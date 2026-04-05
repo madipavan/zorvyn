@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_mob/core/network/auth_event_bus.dart';
 import 'package:injectable/injectable.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -56,6 +57,7 @@ class _AuthInterceptor extends Interceptor {
         return handler.resolve(response);
       } else {
         await _storage.deleteAll();
+        AuthEventBus.instance.add(AuthEvent.sessionExpired);
       }
     }
     handler.next(err);
