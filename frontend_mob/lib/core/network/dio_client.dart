@@ -13,7 +13,7 @@ class DioClient {
   DioClient(this._storage) {
     dio = Dio(
       BaseOptions(
-        baseUrl: ApiEnpoints.localBaseUrl,
+        baseUrl: ApiEnpoints.productionBaseUrl,
         connectTimeout: const Duration(seconds: 40),
         receiveTimeout: const Duration(seconds: 40),
         headers: {'Content-Type': 'application/json'},

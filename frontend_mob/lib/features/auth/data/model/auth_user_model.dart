@@ -5,16 +5,16 @@ class AuthUserModel {
   final String name;
   final String email;
   final String? avatarUrl;
-  final String accessToken;
-  final String refreshToken;
+  final String? accessToken;
+  final String? refreshToken;
 
   const AuthUserModel({
     required this.id,
     required this.name,
     required this.email,
     this.avatarUrl,
-    required this.accessToken,
-    required this.refreshToken,
+    this.accessToken,
+    this.refreshToken,
   });
 
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {

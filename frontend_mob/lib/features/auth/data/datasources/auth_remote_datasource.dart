@@ -25,7 +25,7 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
     try {
       final res = await _client.dio.post(
         ApiEnpoints.login,
-        data: {'email': email, 'password': password},
+        data: {'email': email, 'password': password, "deviceId": "test"},
       );
       final model = AuthUserModel.fromJson(res.data['data']);
       await _storage.write(key: 'access_token', value: model.accessToken);
