@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:frontend_mob/core/services/device_info_service.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/errors/failures.dart';
@@ -9,13 +10,15 @@ import '../datasources/auth_remote_datasource.dart';
 @LazySingleton(as: IAuthRepository)
 class AuthRepositoryImpl implements IAuthRepository {
   final IAuthRemoteDatasource _remote;
+  final DeviceInfoService _deviceInfoService;
 
-  AuthRepositoryImpl(this._remote);
+  AuthRepositoryImpl(this._remote, this._deviceInfoService);
 
   @override
   Future<Either<Failure, AuthUser>> login(String email, String password) async {
     try {
-      final model = await _remote.login(email, password);
+      final deviceId = await _deviceInfoService.getDeviceId();
+      final model = await _remote.login(email, password, deviceId);
       return Right(model.toEntity());
     } on Failure catch (f) {
       return Left(f);

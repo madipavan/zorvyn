@@ -8,7 +8,7 @@ import '../../../../core/errors/api_error_handler.dart';
 import '../../../../core/network/dio_client.dart';
 
 abstract class IAuthRemoteDatasource {
-  Future<AuthUserModel> login(String email, String password);
+  Future<AuthUserModel> login(String email, String password, String deviceId);
   Future<AuthUserModel> register(String name, String email, String password);
   Future<void> logout();
 }
@@ -21,15 +21,20 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
   AuthRemoteDatasource(this._client, this._storage);
 
   @override
-  Future<AuthUserModel> login(String email, String password) async {
+  Future<AuthUserModel> login(
+    String email,
+    String password,
+    String deviceId,
+  ) async {
     try {
       final res = await _client.dio.post(
         ApiEnpoints.login,
-        data: {'email': email, 'password': password, "deviceId": "test"},
+        data: {'email': email, 'password': password, "deviceId": deviceId},
       );
       final model = AuthUserModel.fromJson(res.data['data']);
       await _storage.write(key: 'access_token', value: model.accessToken);
       await _storage.write(key: 'refresh_token', value: model.refreshToken);
+      await _storage.write(key: 'device_id', value: deviceId);
       return model;
     } on DioException catch (e) {
       throw handleDioError(e);
@@ -62,6 +67,7 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
       await _client.dio.post(ApiEnpoints.logout);
     } catch (_) {
     } finally {
+      print("--------------------------------");
       await _storage.deleteAll();
     }
   }
