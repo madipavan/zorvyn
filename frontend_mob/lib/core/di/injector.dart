@@ -14,6 +14,10 @@ import 'package:frontend_mob/features/goals/data/datasources/goal_remote_datasou
 import 'package:frontend_mob/features/goals/data/repositories/goal_repository_impl.dart';
 import 'package:frontend_mob/features/goals/domain/repositories/i_goal_repository.dart';
 import 'package:frontend_mob/features/goals/presentation/bloc/goal_bloc.dart';
+import 'package:frontend_mob/features/insights/data/datasources/insights_remote_datasource.dart';
+import 'package:frontend_mob/features/insights/data/repositories/insights_repository_impl.dart';
+import 'package:frontend_mob/features/insights/domain/repositories/i_insights_repository.dart';
+import 'package:frontend_mob/features/insights/presentation/bloc/insights_bloc.dart';
 import 'package:frontend_mob/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:frontend_mob/features/transactions/data/repositories/transaction_repository_impl.dart';
 import 'package:frontend_mob/features/transactions/domain/repositories/i_transaction_repository.dart';
@@ -70,4 +74,13 @@ Future<void> configureDependencies() async {
     () => GoalRepositoryImpl(getIt()),
   );
   getIt.registerFactory<GoalBloc>(() => GoalBloc(getIt()));
+
+  //Insights
+  getIt.registerLazySingleton<IInsightsRemoteDatasource>(
+    () => InsightsRemoteDatasource(getIt()),
+  );
+  getIt.registerLazySingleton<IInsightsRepository>(
+    () => InsightsRepositoryImpl(getIt()),
+  );
+  getIt.registerFactory<InsightsBloc>(() => InsightsBloc(getIt()));
 }
