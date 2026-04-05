@@ -10,9 +10,11 @@ import 'package:frontend_mob/shared/widgets/app_card.dart';
 import 'package:frontend_mob/shared/widgets/category_badge.dart';
 import 'package:frontend_mob/shared/widgets/empty_state_widget.dart';
 import 'package:frontend_mob/shared/widgets/error_state_widget.dart';
+import 'package:frontend_mob/shared/widgets/loading_shrimmer_list.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -52,13 +54,7 @@ class _DashboardView extends StatelessWidget {
               slivers: [
                 _buildAppBar(context),
                 if (state is DashboardLoading)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  )
+                  const SliverFillRemaining(child: LoadingShimmerList())
                 else if (state is DashboardError)
                   SliverFillRemaining(
                     child: ErrorStateWidget(
@@ -99,7 +95,7 @@ class _DashboardView extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          const Text('Finance'),
+          Text('Finance', style: AppTextStyles.heading(context)),
         ],
       ),
       actions: [
@@ -170,14 +166,14 @@ class _BalanceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Total Balance',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+            style: AppTextStyles.body(context).copyWith(color: Colors.white70),
           ),
           const SizedBox(height: 8),
           Text(
             'Rs.${NumberFormat('#,##,###.##').format(summary.totalBalance)}',
-            style: const TextStyle(
+            style: AppTextStyles.heading(context).copyWith(
               color: Colors.white,
               fontSize: 32,
               fontWeight: FontWeight.w700,
@@ -245,15 +241,15 @@ class _BalanceStat extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: AppTextStyles.body(
+                context,
+              ).copyWith(color: Colors.white70, fontSize: 12),
             ),
             Text(
               'Rs.${NumberFormat('#,##,###').format(amount)}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.subHeading(
+                context,
+              ).copyWith(color: Colors.white, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -287,7 +283,7 @@ class _SavingsCard extends StatelessWidget {
               ),
               Text(
                 '${pct.toStringAsFixed(0)}%',
-                style: const TextStyle(
+                style: AppTextStyles.body(context).copyWith(
                   color: AppColors.income,
                   fontWeight: FontWeight.w700,
                 ),
@@ -482,16 +478,17 @@ class _CategoryBreakdown extends StatelessWidget {
                             const SizedBox(width: 8),
                             Text(
                               cat,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
+                              style: AppTextStyles.body(
+                                context,
+                              ).copyWith(fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
                         Text(
                           'Rs.${NumberFormat('#,##,###').format(amt)}',
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          style: AppTextStyles.body(
+                            context,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -564,15 +561,14 @@ class _RecentTransactions extends StatelessWidget {
                       leading: CategoryBadge(category: t.category),
                       title: Text(
                         t.category,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+                        style: AppTextStyles.body(
+                          context,
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                       subtitle: t.note != null
                           ? Text(
                               t.note!,
-                              style: TextStyle(
+                              style: AppTextStyles.body(context).copyWith(
                                 fontSize: 12,
                                 color: Theme.of(context).colorScheme.outline,
                               ),
