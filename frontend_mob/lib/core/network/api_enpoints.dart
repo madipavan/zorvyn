@@ -6,5 +6,11 @@ class ApiEnpoints {
   static final String register = "/auth/signup";
   static final String logout = "/auth/logout";
   static final String refresh = "/auth/refresh";
+  //Dashboard
   static final String dashboardSummary = "/dashboard/summary";
+  //Transaction
+  static const String transactions = '/transactions';
+  static String updateTransaction(String id) => '/transactions/$id';
+  static String deleteTransaction(String id) => '/transactions/$id';
+  static const String categorySummary = '/transactions/summary/categories';
 }
