@@ -13,4 +13,9 @@ class ApiEnpoints {
   static String updateTransaction(String id) => '/transactions/$id';
   static String deleteTransaction(String id) => '/transactions/$id';
   static const String categorySummary = '/transactions/summary/categories';
+
+  //goals
+  static const String goals = '/goals';
+  static String updateGoal(String id) => '/goals/$id';
+  static String deleteGoal(String id) => '/goals/$id';
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_mob/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:frontend_mob/features/goals/presentation/screens/goals_screen.dart';
 import 'package:frontend_mob/features/transactions/presentation/screens/add_edit_transaction_screen.dart';
 import 'package:frontend_mob/features/transactions/presentation/screens/transaction_list_screen.dart';
 import 'package:frontend_mob/shared/widgets/main_shell.dart';
@@ -68,6 +69,11 @@ class AppRouter {
                   },
                 ),
               ],
+            ),
+            GoRoute(
+              path: '/goals',
+              name: 'goals',
+              builder: (ctx, state) => const GoalsScreen(),
             ),
           ],
         ),
