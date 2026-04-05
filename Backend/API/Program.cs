@@ -1,17 +1,20 @@
 using System.Text;
-using DotNetEnv;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
+using API.Middleware;
 using Application;
 using Infrastructure;
 using Infrastructure.Persistence;
-using API.Middleware;
-
-Env.Load("../.env");
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load .env only in development
+if (builder.Environment.IsDevelopment())
+{
+    DotNetEnv.Env.Load("../.env");
+}
 
 builder
     .Services.AddControllers()
@@ -81,17 +84,34 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// Run migrations with retry (handles cold start timing issues)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
+    var retries = 5;
+    while (retries > 0)
+    {
+        try
+        {
+            await db.Database.MigrateAsync();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries--;
+            if (retries == 0)
+                throw;
+            Console.WriteLine(
+                $"Migration failed, retrying... ({retries} attempts left): {ex.Message}"
+            );
+            await Task.Delay(3000);
+        }
+    }
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Zovryn API v1"));
-}
+// Always enable Swagger (useful for testing on Render too)
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Zovryn API v1"));
 
 app.UseCors("AllowAll");
 
