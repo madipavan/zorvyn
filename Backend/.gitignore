@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+appsettings.Development.json
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
