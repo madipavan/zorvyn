@@ -10,6 +10,10 @@ import 'package:frontend_mob/features/dashboard/data/datasources/dashboard_remot
 import 'package:frontend_mob/features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:frontend_mob/features/dashboard/domain/repositories/i_dashboard_repository.dart';
 import 'package:frontend_mob/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:frontend_mob/features/goals/data/datasources/goal_remote_datasource.dart';
+import 'package:frontend_mob/features/goals/data/repositories/goal_repository_impl.dart';
+import 'package:frontend_mob/features/goals/domain/repositories/i_goal_repository.dart';
+import 'package:frontend_mob/features/goals/presentation/bloc/goal_bloc.dart';
 import 'package:frontend_mob/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:frontend_mob/features/transactions/data/repositories/transaction_repository_impl.dart';
 import 'package:frontend_mob/features/transactions/domain/repositories/i_transaction_repository.dart';
@@ -41,6 +45,14 @@ Future<void> configureDependencies() async {
       ),
     ),
   );
+  //DASHBOARD
+  getIt.registerLazySingleton<IDashboardRemoteDatasource>(
+    () => DashboardRemoteDatasource(getIt()),
+  );
+  getIt.registerLazySingleton<IDashboardRepository>(
+    () => DashboardRepositoryImpl(getIt()),
+  );
+  getIt.registerFactory<DashboardBloc>(() => DashboardBloc(getIt()));
   //TXN
   getIt.registerLazySingleton<ITransactionRemoteDatasource>(
     () => TransactionRemoteDatasource(getIt()),
@@ -50,12 +62,12 @@ Future<void> configureDependencies() async {
   );
   getIt.registerFactory<TransactionBloc>(() => TransactionBloc(getIt()));
 
-  //DASHBOARD
-  getIt.registerLazySingleton<IDashboardRemoteDatasource>(
-    () => DashboardRemoteDatasource(getIt()),
+  //goal
+  getIt.registerLazySingleton<IGoalRemoteDatasource>(
+    () => GoalRemoteDatasource(getIt()),
   );
-  getIt.registerLazySingleton<IDashboardRepository>(
-    () => DashboardRepositoryImpl(getIt()),
+  getIt.registerLazySingleton<IGoalRepository>(
+    () => GoalRepositoryImpl(getIt()),
   );
-  getIt.registerFactory<DashboardBloc>(() => DashboardBloc(getIt()));
+  getIt.registerFactory<GoalBloc>(() => GoalBloc(getIt()));
 }
