@@ -9,6 +9,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../network/auth_event_bus.dart';
 
 @singleton
@@ -19,10 +20,15 @@ class AppRouter {
 
   AppRouter(this._storage) {
     router = GoRouter(
-      initialLocation: '/home',
+      initialLocation: '/splash',
       redirect: _guard,
       refreshListenable: _AuthListenable(),
       routes: [
+        GoRoute(
+          path: '/splash',
+          name: 'splash',
+          builder: (ctx, state) => const SplashScreen(),
+        ),
         GoRoute(
           path: '/auth/login',
           name: 'login',
@@ -58,6 +64,9 @@ class AppRouter {
   }
 
   Future<String?> _guard(BuildContext ctx, GoRouterState state) async {
+    final onSplash = state.matchedLocation == '/splash';
+    if (onSplash) return null;
+
     final token = await _storage.read(key: 'access_token');
     final onAuth = state.matchedLocation.startsWith('/auth');
 
