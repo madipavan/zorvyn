@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_mob/core/network/api_enpoints.dart';
 import 'package:frontend_mob/features/auth/data/model/auth_user_model.dart';
 import 'package:injectable/injectable.dart';
 
@@ -23,7 +24,7 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
   Future<AuthUserModel> login(String email, String password) async {
     try {
       final res = await _client.dio.post(
-        '/auth/login',
+        ApiEnpoints.login,
         data: {'email': email, 'password': password},
       );
       final model = AuthUserModel.fromJson(res.data['data']);
@@ -43,7 +44,7 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
   ) async {
     try {
       final res = await _client.dio.post(
-        '/auth/register',
+        ApiEnpoints.register,
         data: {'name': name, 'email': email, 'password': password},
       );
       final model = AuthUserModel.fromJson(res.data['data']);
@@ -58,7 +59,7 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
   @override
   Future<void> logout() async {
     try {
-      await _client.dio.post('/auth/logout');
+      await _client.dio.post(ApiEnpoints.logout);
     } catch (_) {
     } finally {
       await _storage.deleteAll();
