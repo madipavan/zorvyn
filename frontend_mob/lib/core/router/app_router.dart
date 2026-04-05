@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_mob/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:frontend_mob/features/transactions/presentation/screens/add_edit_transaction_screen.dart';
+import 'package:frontend_mob/features/transactions/presentation/screens/transaction_list_screen.dart';
 import 'package:frontend_mob/shared/widgets/main_shell.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -46,6 +48,26 @@ class AppRouter {
               path: '/home',
               name: 'home',
               builder: (ctx, state) => const DashboardScreen(),
+            ),
+            GoRoute(
+              path: '/transactions',
+              name: 'transactions',
+              builder: (ctx, state) => const TransactionListScreen(),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  name: 'add-transaction',
+                  builder: (ctx, state) => const AddEditTransactionScreen(),
+                ),
+                GoRoute(
+                  path: ':id/edit',
+                  name: 'edit-transaction',
+                  builder: (ctx, state) {
+                    final id = state.pathParameters['id']!;
+                    return AddEditTransactionScreen(transactionId: id);
+                  },
+                ),
+              ],
             ),
           ],
         ),
