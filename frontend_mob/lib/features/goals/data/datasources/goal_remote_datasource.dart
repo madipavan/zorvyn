@@ -26,24 +26,24 @@ class GoalRemoteDatasource implements IGoalRemoteDatasource {
       (t) => t.name == j['type'],
       orElse: () => GoalType.savings,
     ),
-    targetAmount: (j['target_amount'] as num).toDouble(),
-    currentAmount: (j['current_amount'] as num).toDouble(),
-    startDate: DateTime.parse(j['start_date'] as String),
-    endDate: DateTime.parse(j['end_date'] as String),
-    isActive: j['is_active'] as bool,
-    streakDays: (j['streak_days'] as num?)?.toInt() ?? 0,
+    targetAmount: (j['targetAmount'] as num).toDouble(),
+    currentAmount: (j['currentAmount'] as num).toDouble(),
+    startDate: DateTime.parse(j['startDate'] as String),
+    endDate: DateTime.parse(j['endDate'] as String),
+    isActive: j['isActive'] as bool,
+    streakDays: (j['streakDays'] as num?)?.toInt() ?? 0,
   );
 
   Map<String, dynamic> _toJson(Goal g) => {
     'id': g.id,
     'title': g.title,
     'type': g.type.name,
-    'target_amount': g.targetAmount,
-    'current_amount': g.currentAmount,
-    'start_date': g.startDate.toIso8601String(),
-    'end_date': g.endDate.toIso8601String(),
-    'is_active': g.isActive,
-    'streak_days': g.streakDays,
+    'targetAmount': g.targetAmount,
+    'currentAmount': g.currentAmount,
+    'startDate': g.startDate.toIso8601String(),
+    'endDate': g.endDate.toIso8601String(),
+    'isActive': g.isActive,
+    'streakDays': g.streakDays,
   };
 
   @override
