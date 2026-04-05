@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_mob/core/theme/app_theme.dart';
 
 class AppSnackbar {
   static void show(
@@ -9,7 +10,11 @@ class AppSnackbar {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
+        backgroundColor: isError ? AppColors.expense : AppColors.income,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
     );
   }

@@ -24,7 +24,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  final bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -74,13 +73,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       const SizedBox(height: 32),
 
-                      Text('Create account', style: AppTextStyles.heading),
+                      Text(
+                        'Create account',
+                        style: AppTextStyles.heading(context),
+                      ),
 
                       const SizedBox(height: 8),
 
                       Text(
                         'Start tracking your finances today',
-                        style: AppTextStyles.body,
+                        style: AppTextStyles.body(context),
                       ),
 
                       const SizedBox(height: 40),
@@ -116,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _passwordCtrl,
                         label: 'Password',
                         prefixIcon: Icons.lock_outlined,
-                        obscureText: _obscurePassword,
+                        isPassword: true,
                         validator: (v) {
                           if (v == null || v.isEmpty)
                             return 'Enter your password';
@@ -151,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         children: [
                           Text(
                             'Already have an account? ',
-                            style: AppTextStyles.body,
+                            style: AppTextStyles.body(context),
                           ),
                           TextButton(
                             onPressed: () => context.go('/auth/login'),
