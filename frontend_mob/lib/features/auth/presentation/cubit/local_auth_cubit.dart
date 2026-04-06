@@ -10,20 +10,19 @@ class LocalAuthCubit extends Cubit<LocalAuthState> {
   Future<void> checkAndAuthenticate() async {
     emit(LocalAuthLoading());
 
-    final supported = await authRepository.isDeviceSupported();
-    final enabled = await authRepository.isBiometricEnabled();
-
-    if (!supported || !enabled) {
+    try {
+      final supported = await authRepository.isDeviceSupported();
+      final success = await authRepository.authenticate();
+      if (!supported) {
+        emit(LocalAuthUnlocked());
+      }
+      if (success) {
+        emit(LocalAuthUnlocked());
+      } else {
+        emit(LocalAuthLocked());
+      }
+    } catch (e) {
       emit(LocalAuthUnlocked());
-      return;
-    }
-
-    final success = await authRepository.authenticate();
-
-    if (success) {
-      emit(LocalAuthUnlocked());
-    } else {
-      emit(LocalAuthLocked());
     }
   }
 
