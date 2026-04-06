@@ -82,7 +82,7 @@ class _DashboardView extends StatelessWidget {
       title: Text(
         'Finance Companion',
         style: AppTextStyles.displaySmall(context).copyWith(
-          fontSize: 22,
+          fontSize: 18,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.5,
         ),

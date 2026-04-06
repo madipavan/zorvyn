@@ -12,10 +12,15 @@ class LocalAuthCubit extends Cubit<LocalAuthState> {
 
     try {
       final supported = await authRepository.isDeviceSupported();
-      final success = await authRepository.authenticate();
-      if (!supported) {
+      final enabled = await authRepository.isBiometricEnabled();
+
+      if (!supported || !enabled) {
         emit(LocalAuthUnlocked());
+        return;
       }
+
+      final success = await authRepository.authenticate();
+
       if (success) {
         emit(LocalAuthUnlocked());
       } else {
@@ -29,4 +34,6 @@ class LocalAuthCubit extends Cubit<LocalAuthState> {
   Future<void> toggleBiometric(bool value) async {
     await authRepository.setBiometricEnabled(value);
   }
+
+  void reset() => emit(LocalAuthInitial());
 }

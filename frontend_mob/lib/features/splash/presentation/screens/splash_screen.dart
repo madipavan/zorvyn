@@ -26,16 +26,26 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1400),
     );
     _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.6, curve: Curves.easeOut)),
+      CurvedAnimation(
+        parent: _ctrl,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
     );
     _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.6, curve: Curves.easeOut)),
+      CurvedAnimation(
+        parent: _ctrl,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
     );
+
     _ctrl.forward();
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        context.read<LocalAuthCubit>().checkAndAuthenticate();
-      }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      context.read<LocalAuthCubit>().reset();
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      if (!mounted) return;
+      context.read<LocalAuthCubit>().checkAndAuthenticate();
     });
   }
 
@@ -59,7 +69,6 @@ class _SplashScreenState extends State<SplashScreen>
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Stack(
           children: [
-            // Radial glow accent
             Positioned(
               top: -80,
               left: -60,
@@ -70,7 +79,9 @@ class _SplashScreenState extends State<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.25),
                       Colors.transparent,
                     ],
                   ),
@@ -87,7 +98,9 @@ class _SplashScreenState extends State<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.15),
                       Colors.transparent,
                     ],
                   ),
@@ -113,7 +126,9 @@ class _SplashScreenState extends State<SplashScreen>
                         child: Icon(
                           Icons.account_balance_rounded,
                           size: 36,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
                         ),
                       ),
                       const SizedBox(height: 24),

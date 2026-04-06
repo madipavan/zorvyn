@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend_mob/core/di/injector.dart';
+import 'package:frontend_mob/features/transactions/presentation/cubit/transaction_filter_cubit.dart';
 import 'package:frontend_mob/shared/widgets/amount_text.dart';
 import 'package:frontend_mob/shared/widgets/category_badge.dart';
 import 'package:frontend_mob/shared/widgets/empty_state_widget.dart';
@@ -14,54 +15,41 @@ import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/transaction.dart';
 import '../bloc/transaction_bloc.dart';
 
-class TransactionListScreen extends StatefulWidget {
+class TransactionListScreen extends StatelessWidget {
   const TransactionListScreen({super.key});
 
   @override
-  State<TransactionListScreen> createState() => _TransactionListScreenState();
-}
-
-class _TransactionListScreenState extends State<TransactionListScreen> {
-  String _activeFilter = 'All'; // All, Income, Expenses, Today
-
-  void _onFilterChanged(String filter) {
-    setState(() {
-      _activeFilter = filter;
-    });
-    // Optional: Could trigger API load if backend supports it based on filter
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<TransactionBloc>()..add(LoadTransactions()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<TransactionBloc>()..add(LoadTransactions()),
+        ),
+        BlocProvider(create: (_) => TransactionFilterCubit()),
+      ],
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {},
-          ),
+          leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
           centerTitle: true,
           title: Text(
             'Transactions',
-            style: AppTextStyles.titleMedium(context).copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTextStyles.titleMedium(
+              context,
+            ).copyWith(fontWeight: FontWeight.w700),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.filter_list),
-              onPressed: () {},
-            ),
+            IconButton(icon: const Icon(Icons.filter_list), onPressed: () {}),
           ],
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 90.0, right: 8.0),
-          child: FloatingActionButton(
-            heroTag: 'transaction_add_fab',
-            backgroundColor: AppColors.primary,
-            child: const Icon(Icons.add, color: Colors.white),
-            onPressed: () => context.push('/transactions/add'),
+          child: Builder(
+            builder: (ctx) => FloatingActionButton(
+              heroTag: 'transaction_add_fab',
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+              onPressed: () => ctx.push('/transactions/add'),
+            ),
           ),
         ),
         body: BlocConsumer<TransactionBloc, TransactionState>(
@@ -104,77 +92,90 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       );
     }
     if (state is TransactionLoaded) {
-      // Client side filtering for visual matching
-      List<Transaction> filteredList = state.transactions;
-      
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      
-      if (_activeFilter == 'Income') {
-        filteredList = filteredList.where((t) => t.type == TransactionType.income).toList();
-      } else if (_activeFilter == 'Expenses') {
-        filteredList = filteredList.where((t) => t.type == TransactionType.expense).toList();
-      } else if (_activeFilter == 'Today') {
-        filteredList = filteredList.where((t) {
-          final tDate = DateTime(t.date.year, t.date.month, t.date.day);
-          return tDate == today;
-        }).toList();
-      }
+      return BlocBuilder<TransactionFilterCubit, String>(
+        builder: (context, activeFilter) {
+          List<Transaction> filteredList = state.transactions;
 
-      return RefreshIndicator(
-        onRefresh: () async => context.read<TransactionBloc>().add(LoadTransactions()),
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: _buildFilterPills(context),
-            ),
-            if (filteredList.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: EmptyStateWidget(
-                  icon: Icons.receipt_long_outlined,
-                  title: 'No transactions found',
-                  subtitle: 'Try changing your filter or add a new transaction',
-                  actionLabel: 'Add Transaction',
-                  onAction: () => context.push('/transactions/add'),
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+
+          if (activeFilter == 'Income') {
+            filteredList = filteredList
+                .where((t) => t.type == TransactionType.income)
+                .toList();
+          } else if (activeFilter == 'Expenses') {
+            filteredList = filteredList
+                .where((t) => t.type == TransactionType.expense)
+                .toList();
+          } else if (activeFilter == 'Today') {
+            filteredList = filteredList.where((t) {
+              final tDate = DateTime(t.date.year, t.date.month, t.date.day);
+              return tDate == today;
+            }).toList();
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async =>
+                context.read<TransactionBloc>().add(LoadTransactions()),
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: _buildFilterPills(context, activeFilter),
                 ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.only(bottom: 120),
-                sliver: _buildList(context, filteredList),
-              ),
-          ],
-        ),
+                if (filteredList.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: EmptyStateWidget(
+                      icon: Icons.receipt_long_outlined,
+                      title: 'No transactions found',
+                      subtitle:
+                          'Try changing your filter or add a new transaction',
+                      actionLabel: 'Add Transaction',
+                      onAction: () => context.push('/transactions/add'),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.only(bottom: 120),
+                    sliver: _buildList(context, filteredList),
+                  ),
+              ],
+            ),
+          );
+        },
       );
     }
     return const SizedBox.shrink();
   }
 
-  Widget _buildFilterPills(BuildContext context) {
+  Widget _buildFilterPills(BuildContext context, String activeFilter) {
     final filters = ['All', 'Income', 'Expenses', 'Today'];
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: filters.map((f) {
-            final isActive = _activeFilter == f;
+            final isActive = activeFilter == f;
             return Padding(
               padding: const EdgeInsets.only(right: 12),
               child: InkWell(
-                onTap: () => _onFilterChanged(f),
+                onTap: () =>
+                    context.read<TransactionFilterCubit>().setFilter(f),
                 borderRadius: BorderRadius.circular(24),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: isActive 
+                    color: isActive
                         ? AppColors.primary.withValues(alpha: 0.15)
                         : Theme.of(context).colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: isActive 
+                      color: isActive
                           ? AppColors.primary.withValues(alpha: 0.5)
                           : Colors.transparent,
                     ),
@@ -182,7 +183,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   child: Text(
                     f,
                     style: AppTextStyles.labelLarge(context).copyWith(
-                      color: isActive ? AppColors.primary : Theme.of(context).colorScheme.onSurface,
+                      color: isActive
+                          ? AppColors.primary
+                          : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -196,7 +199,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
   Widget _buildList(BuildContext context, List<Transaction> transactions) {
     final grouped = <String, List<Transaction>>{};
-    
+
     for (final t in transactions) {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
@@ -216,68 +219,67 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     }
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (ctx, i) {
-          final dateStr = grouped.keys.elementAt(i);
-          final items = grouped[dateStr]!;
-          
-          double netAmount = 0.0;
-          for (final transaction in items) {
-            if (transaction.type == TransactionType.income) {
-              netAmount += transaction.amount;
-            } else {
-              netAmount -= transaction.amount;
-            }
-          }
-          
-          final isPositiveNet = netAmount >= 0;
-          final netLabel = (dateStr == 'Yesterday' || dateStr.contains('202') && !dateStr.contains('Today')) 
-              ? 'Total Spent' 
-              : 'Net';
-              
-          final sign = isPositiveNet && netAmount != 0 ? '+' : '';
+      delegate: SliverChildBuilderDelegate((ctx, i) {
+        final dateStr = grouped.keys.elementAt(i);
+        final items = grouped[dateStr]!;
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        dateStr,
-                        style: AppTextStyles.titleLarge(context).copyWith(
-                          fontSize: 20, // To match screenshot header
-                        ),
+        double netAmount = 0.0;
+        for (final transaction in items) {
+          if (transaction.type == TransactionType.income) {
+            netAmount += transaction.amount;
+          } else {
+            netAmount -= transaction.amount;
+          }
+        }
+
+        final isPositiveNet = netAmount >= 0;
+        final netLabel =
+            (dateStr == 'Yesterday' ||
+                dateStr.contains('202') && !dateStr.contains('Today'))
+            ? 'Total Spent'
+            : 'Net';
+
+        final sign = isPositiveNet && netAmount != 0 ? '+' : '';
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 24, bottom: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      dateStr,
+                      style: AppTextStyles.titleLarge(context).copyWith(
+                        fontSize: 20,
                       ),
-                      Text(
-                        '$netLabel: $sign${NumberFormat.currency(symbol: '\$').format(netAmount)}',
-                        style: AppTextStyles.bodyMedium(context).copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ...items.map(
-                  (t) => _TransactionTile(
-                    transaction: t,
-                    onDelete: () => context.read<TransactionBloc>().add(
-                      DeleteTransactionEvent(t.id),
                     ),
-                    onEdit: () => context.push('/transactions/${t.id}/edit'),
-                  ),
+                    Text(
+                      '$netLabel: $sign${NumberFormat.currency(symbol: '\$').format(netAmount)}',
+                      style: AppTextStyles.bodyMedium(context).copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
-        childCount: grouped.length,
-      ),
+              ),
+              ...items.map(
+                (t) => _TransactionTile(
+                  transaction: t,
+                  onDelete: () => context.read<TransactionBloc>().add(
+                    DeleteTransactionEvent(t.id),
+                  ),
+                  onEdit: () => context.push('/transactions/${t.id}/edit'),
+                ),
+              ),
+            ],
+          ),
+        );
+      }, childCount: grouped.length),
     );
   }
 }
@@ -296,7 +298,7 @@ class _TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timeStr = DateFormat('HH:mm a').format(transaction.date);
-    
+
     return Dismissible(
       key: Key(transaction.id),
       direction: DismissDirection.endToStart,
@@ -314,7 +316,9 @@ class _TransactionTile extends StatelessWidget {
         return await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest,
             title: const Text('Delete Transaction'),
             content: const Text(
               'Are you sure you want to delete this transaction?',
@@ -328,7 +332,9 @@ class _TransactionTile extends StatelessWidget {
                 onPressed: () => Navigator.pop(context, true),
                 child: Text(
                   'Delete',
-                  style: AppTextStyles.labelLarge(context).copyWith(color: AppColors.expense),
+                  style: AppTextStyles.labelLarge(
+                    context,
+                  ).copyWith(color: AppColors.expense),
                 ),
               ),
             ],
@@ -347,7 +353,7 @@ class _TransactionTile extends StatelessWidget {
           children: [
             CategoryBadge(
               category: transaction.category,
-              size: 48, // slightly larger category badge for hero mapping if necessary
+              size: 48,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -385,16 +391,16 @@ class _TransactionTile extends StatelessWidget {
                       fontSize: 16,
                     ),
                     const SizedBox(width: 4),
-                    // EDIT BUTTON REQUESTED BY USER
                     InkWell(
                       onTap: onEdit,
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
                         child: Icon(
-                          Icons.edit_outlined, 
-                          size: 16, 
-                          color: Theme.of(context).colorScheme.onSurfaceVariant
+                          Icons.edit_outlined,
+                          size: 16,
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
