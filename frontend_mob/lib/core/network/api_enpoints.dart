@@ -1,7 +1,23 @@
 class ApiEnpoints {
-  static final String productionBaseUrl = "/api";
+  static final String productionBaseUrl =
+      "https://zorvyn-yr94.onrender.com/api";
   static final String localBaseUrl = "http://0.0.0.0:10000/api";
   static final String login = "/auth/login";
-  static final String register = "/auth/register";
+  static final String register = "/auth/signup";
   static final String logout = "/auth/logout";
+  static final String refresh = "/auth/refresh";
+  //Dashboard
+  static final String dashboardSummary = "/dashboard/summary";
+  //Transaction
+  static const String transactions = '/transactions';
+  static String updateTransaction(String id) => '/transactions/$id';
+  static String deleteTransaction(String id) => '/transactions/$id';
+  static const String categorySummary = '/transactions/summary/categories';
+
+  //goals
+  static const String goals = '/goals';
+  static String updateGoal(String id) => '/goals/$id';
+  static String deleteGoal(String id) => '/goals/$id';
+  //insights
+  static const String insights = '/insights';
 }

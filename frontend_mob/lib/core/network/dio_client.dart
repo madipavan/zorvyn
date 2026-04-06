@@ -13,7 +13,7 @@ class DioClient {
   DioClient(this._storage) {
     dio = Dio(
       BaseOptions(
-        baseUrl: ApiEnpoints.localBaseUrl,
+        baseUrl: ApiEnpoints.productionBaseUrl,
         connectTimeout: const Duration(seconds: 40),
         receiveTimeout: const Duration(seconds: 40),
         headers: {'Content-Type': 'application/json'},
@@ -42,19 +42,29 @@ class _AuthInterceptor extends Interceptor {
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
+    final deviceId = await _storage.read(key: 'device_id');
+    if (deviceId != null) {
+      options.headers['X-Device-Id'] = deviceId;
+    }
     handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
+    if (err.response?.statusCode == 401 &&
+        err.requestOptions.path != ApiEnpoints.refresh) {
       final refreshed = await _refreshToken();
       if (refreshed) {
         final opts = err.requestOptions;
         final token = await _storage.read(key: 'access_token');
         opts.headers['Authorization'] = 'Bearer $token';
-        final response = await _dio.fetch(opts);
-        return handler.resolve(response);
+
+        try {
+          final response = await _dio.fetch(opts);
+          return handler.resolve(response);
+        } catch (e) {
+          return handler.next(err);
+        }
       } else {
         await _storage.deleteAll();
         AuthEventBus.instance.add(AuthEvent.sessionExpired);
@@ -66,10 +76,11 @@ class _AuthInterceptor extends Interceptor {
   Future<bool> _refreshToken() async {
     try {
       final refresh = await _storage.read(key: 'refresh_token');
-      if (refresh == null) return false;
+      final deviceId = await _storage.read(key: 'device_id');
+      if (refresh == null || deviceId == null) return false;
       final res = await _dio.post(
-        '/auth/refresh',
-        data: {'refresh_token': refresh},
+        ApiEnpoints.refresh,
+        data: {'refreshToken': refresh, "deviceId": deviceId},
       );
       await _storage.write(
         key: 'access_token',

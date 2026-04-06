@@ -12,4 +12,8 @@ abstract class IAuthRepository {
   );
   Future<Either<Failure, Unit>> logout();
   Future<Either<Failure, AuthUser>> getCurrentUser();
+  Future<bool> authenticate();
+  Future<bool> isBiometricEnabled();
+  Future<void> setBiometricEnabled(bool value);
+  Future<bool> isDeviceSupported();
 }

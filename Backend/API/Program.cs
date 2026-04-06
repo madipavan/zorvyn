@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+Console.WriteLine("=== DB HOST: " + builder.Configuration.GetConnectionString("DefaultConnection"));
 
 // Load .env only in development
 if (builder.Environment.IsDevelopment())
