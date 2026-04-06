@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend_mob/core/di/injector.dart';
 import 'package:frontend_mob/core/router/app_router.dart';
+import 'package:frontend_mob/core/services/notification_service.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
@@ -9,6 +10,7 @@ import 'core/theme/theme_cubit.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
+  await getIt<NotificationService>().initialize();
   runApp(const FinanceApp());
 }
 
@@ -17,8 +19,8 @@ class FinanceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: getIt<ThemeCubit>(),
+    return MultiBlocProvider(
+      providers: [BlocProvider.value(value: getIt<ThemeCubit>())],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (ctx, themeMode) {
           return MaterialApp.router(

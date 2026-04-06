@@ -3,11 +3,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_mob/core/network/dio_client.dart';
 import 'package:frontend_mob/core/router/app_router.dart';
 import 'package:frontend_mob/core/services/device_info_service.dart';
+import 'package:frontend_mob/core/services/notification_service.dart';
 import 'package:frontend_mob/core/theme/theme_cubit.dart';
 import 'package:frontend_mob/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:frontend_mob/features/auth/data/datasources/local_auth_datasource.dart';
 import 'package:frontend_mob/features/auth/data/datasources/local_auth_storage_data_source.dart';
 import 'package:frontend_mob/features/auth/data/repo/auth_repository_impl.dart';
+import 'package:frontend_mob/features/auth/domain/repositories/i_auth_repository.dart';
 import 'package:frontend_mob/features/auth/presentation/cubit/local_auth_cubit.dart';
 import 'package:frontend_mob/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:frontend_mob/features/dashboard/data/repositories/dashboard_repository_impl.dart';
@@ -38,22 +40,26 @@ Future<void> configureDependencies() async {
     () => FlutterSecureStorage(),
   );
   getIt.registerSingleton<DeviceInfoPlugin>(DeviceInfoPlugin());
+  getIt.registerSingleton<DeviceInfoService>(DeviceInfoService(getIt()));
   getIt.registerSingleton<DioClient>(DioClient(getIt<FlutterSecureStorage>()));
   getIt.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
+  getIt.registerLazySingleton<NotificationService>(() => NotificationService());
 
   getIt.registerLazySingleton<AppRouter>(
     () => AppRouter(getIt<FlutterSecureStorage>()),
   );
   getIt.registerLazySingleton(() => LocalAuthentication());
   //AUTH
-  getIt.registerFactory<AuthBloc>(
-    () => AuthBloc(
-      AuthRepositoryImpl(
+  getIt.registerLazySingleton<IAuthRemoteDatasource>(
+    () =>
         AuthRemoteDatasource(getIt<DioClient>(), getIt<FlutterSecureStorage>()),
-        DeviceInfoService(getIt<DeviceInfoPlugin>()),
-        LocalAuthDataSourceImpl(getIt()),
-        LocalAuthStorageDataSourceImpl(getIt()),
-      ),
+  );
+  getIt.registerLazySingleton<IAuthRepository>(
+    () => AuthRepositoryImpl(
+      getIt<IAuthRemoteDatasource>(),
+      getIt<DeviceInfoService>(),
+      getIt<LocalAuthDataSource>(),
+      getIt<LocalAuthStorageDataSource>(),
     ),
   );
   getIt.registerLazySingleton<LocalAuthDataSource>(
@@ -62,7 +68,12 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<LocalAuthStorageDataSource>(
     () => LocalAuthStorageDataSourceImpl(getIt()),
   );
-  getIt.registerFactory(() => LocalAuthCubit(authRepository: getIt()));
+  getIt.registerFactory<AuthBloc>(() => AuthBloc(getIt<IAuthRepository>()));
+
+  getIt.registerFactory<LocalAuthCubit>(
+    () => LocalAuthCubit(authRepository: getIt()),
+  );
+
   //DASHBOARD
   getIt.registerLazySingleton<IDashboardRemoteDatasource>(
     () => DashboardRemoteDatasource(getIt()),

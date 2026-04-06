@@ -51,14 +51,20 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
+    if (err.response?.statusCode == 401 &&
+        err.requestOptions.path != ApiEnpoints.refresh) {
       final refreshed = await _refreshToken();
       if (refreshed) {
         final opts = err.requestOptions;
         final token = await _storage.read(key: 'access_token');
         opts.headers['Authorization'] = 'Bearer $token';
-        final response = await _dio.fetch(opts);
-        return handler.resolve(response);
+
+        try {
+          final response = await _dio.fetch(opts);
+          return handler.resolve(response);
+        } catch (e) {
+          return handler.next(err);
+        }
       } else {
         await _storage.deleteAll();
         AuthEventBus.instance.add(AuthEvent.sessionExpired);

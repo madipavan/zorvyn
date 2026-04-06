@@ -99,6 +99,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   }
 
   Future<void> _onAdd(AddTransactionEvent event, Emitter<TransactionState> emit) async {
+    emit(TransactionLoading());
     final result = await _repo.addTransaction(event.transaction);
     result.fold(
       (failure) => emit(TransactionError(failure.message)),
@@ -110,6 +111,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   }
 
   Future<void> _onUpdate(UpdateTransactionEvent event, Emitter<TransactionState> emit) async {
+    emit(TransactionLoading());
     final result = await _repo.updateTransaction(event.transaction);
     result.fold(
       (failure) => emit(TransactionError(failure.message)),
@@ -121,6 +123,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   }
 
   Future<void> _onDelete(DeleteTransactionEvent event, Emitter<TransactionState> emit) async {
+    emit(TransactionLoading());
     final result = await _repo.deleteTransaction(event.id);
     result.fold(
       (failure) => emit(TransactionError(failure.message)),

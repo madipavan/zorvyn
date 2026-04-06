@@ -12,8 +12,8 @@ class LoadingShimmerList extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: itemCount,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => const ShimmerCard(),
+      separatorBuilder: (c, i) => const SizedBox(height: 12),
+      itemBuilder: (c, i) => const ShimmerCard(),
     );
   }
 }

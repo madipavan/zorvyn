@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend_mob/core/di/injector.dart';
+import 'package:frontend_mob/features/auth/presentation/cubit/local_auth_cubit.dart';
 import 'package:frontend_mob/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:frontend_mob/features/goals/presentation/screens/goals_screen.dart';
 import 'package:frontend_mob/features/insights/presentation/screens/insights_screen.dart';
@@ -31,7 +34,10 @@ class AppRouter {
         GoRoute(
           path: '/splash',
           name: 'splash',
-          builder: (ctx, state) => const SplashScreen(),
+          builder: (ctx, state) => BlocProvider(
+            create: (context) => getIt<LocalAuthCubit>(),
+            child: const SplashScreen(),
+          ),
         ),
         GoRoute(
           path: '/auth/login',
@@ -80,6 +86,12 @@ class AppRouter {
               path: '/insights',
               name: 'insights',
               builder: (ctx, state) => const InsightsScreen(),
+            ),
+            GoRoute(
+              path: '/profile',
+              name: 'profile',
+              builder: (ctx, state) =>
+                  const Scaffold(body: Center(child: Text('Profile'))),
             ),
           ],
         ),

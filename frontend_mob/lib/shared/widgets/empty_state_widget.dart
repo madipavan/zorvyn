@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_mob/core/theme/app_theme.dart';
+import 'package:frontend_mob/core/theme/app_text_styles.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final String title;
@@ -29,7 +30,7 @@ class EmptyStateWidget extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 40, color: AppColors.primary),
@@ -45,7 +46,7 @@ class EmptyStateWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              style: AppTextStyles.body(context).copyWith(
                 color: Theme.of(context).colorScheme.outline,
               ),
               textAlign: TextAlign.center,

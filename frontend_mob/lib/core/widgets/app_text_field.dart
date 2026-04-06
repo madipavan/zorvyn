@@ -1,69 +1,34 @@
 import 'package:flutter/material.dart';
 
-class AppTextField extends StatefulWidget {
+class AppTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
-  final IconData? prefixIcon;
-  final Widget? suffixIcon;
-  final TextInputType keyboardType;
-  final TextInputAction? textInputAction;
-  final String? Function(String?)? validator;
-  final ValueChanged<String>? onChanged;
+  final IconData prefixIcon;
   final bool isPassword;
+  final TextInputType keyboardType;
+  final String? Function(String?)? validator;
 
   const AppTextField({
     super.key,
     required this.controller,
     required this.label,
-    this.prefixIcon,
-    this.suffixIcon,
-    this.keyboardType = TextInputType.text,
-    this.textInputAction,
-    this.validator,
-    this.onChanged,
+    required this.prefixIcon,
     this.isPassword = false,
+    this.keyboardType = TextInputType.text,
+    this.validator,
   });
-
-  @override
-  State<AppTextField> createState() => _AppTextFieldState();
-}
-
-class _AppTextFieldState extends State<AppTextField> {
-  late bool _obscureText;
-
-  @override
-  void initState() {
-    super.initState();
-    _obscureText = widget.isPassword;
-  }
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: widget.controller,
-      keyboardType: widget.keyboardType,
-      textInputAction: widget.textInputAction,
-      validator: widget.validator,
-      onChanged: widget.onChanged,
-      obscureText: _obscureText,
+      controller: controller,
+      obscureText: isPassword,
+      keyboardType: keyboardType,
+      validator: validator,
+      style: const TextStyle(fontWeight: FontWeight.w500),
       decoration: InputDecoration(
-        labelText: widget.label,
-        prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  _obscureText
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              )
-            : widget.suffixIcon,
+        labelText: label,
+        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
   }
