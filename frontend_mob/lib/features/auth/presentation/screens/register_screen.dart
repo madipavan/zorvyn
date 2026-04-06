@@ -9,6 +9,8 @@ import 'package:frontend_mob/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend_mob/features/auth/presentation/bloc/auth_state.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:frontend_mob/core/theme/theme_mode_extension.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -61,7 +63,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          gradient: context.isDarkMode 
+                              ? AppColors.darkPrimaryGradient
+                              : AppColors.lightPrimaryGradient,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Icon(
@@ -75,7 +79,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       Text(
                         'Create account',
-                        style: AppTextStyles.heading(context),
+                        style: AppTextStyles.display(context).copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -1,
+                        ),
                       ),
 
                       const SizedBox(height: 8),
@@ -119,13 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         label: 'Password',
                         prefixIcon: Icons.lock_outlined,
                         isPassword: true,
-                        validator: (v) {
-                          if (v == null || v.isEmpty)
-                            return 'Enter your password';
-                          if (v.length < 8)
-                            return 'Password must be at least 8 characters';
-                          return null;
-                        },
+
                       ),
 
                       const SizedBox(height: 32),

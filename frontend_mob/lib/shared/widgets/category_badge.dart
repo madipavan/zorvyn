@@ -5,7 +5,7 @@ class CategoryBadge extends StatelessWidget {
   final String category;
   final double size;
 
-  const CategoryBadge({super.key, required this.category, this.size = 40});
+  const CategoryBadge({super.key, required this.category, this.size = 46});
 
   static const _icons = {
     'Food': '🍔',
@@ -22,16 +22,21 @@ class CategoryBadge extends StatelessWidget {
     'Gift': '🎁',
     'Rental': '🏠',
     'Other': '💰',
+    'Income': '💵',
   };
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(size * 0.3),
+        color: isDark 
+            ? AppColors.darkSurfaceContainerHighest 
+            : AppColors.lightSurfaceContainerHighest,
+        borderRadius: BorderRadius.circular(size * 0.35),
       ),
       child: Center(
         child: Text(

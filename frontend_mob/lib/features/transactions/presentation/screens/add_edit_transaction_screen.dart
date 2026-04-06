@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend_mob/core/di/injector.dart';
 import 'package:frontend_mob/core/utils/app_constants.dart';
+import 'package:frontend_mob/core/widgets/app_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -33,6 +34,28 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   DateTime _date = DateTime.now();
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.isEdit) {
+      final bloc = context.read<TransactionBloc>();
+      // State is likely TransactionLoaded, or we can just fetch from the cached list safely.
+      if (bloc.state is TransactionLoaded) {
+        final transactions = (bloc.state as TransactionLoaded).transactions;
+        try {
+          final t = transactions.firstWhere(
+            (tx) => tx.id == widget.transactionId,
+          );
+          _amountCtrl.text = t.amount.toString();
+          _noteCtrl.text = t.note ?? '';
+          _type = t.type;
+          _category = t.category;
+          _date = t.date;
+        } catch (_) {}
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _amountCtrl.dispose();
     _noteCtrl.dispose();
@@ -62,32 +85,34 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                widget.isEdit ? 'Edit Transaction' : 'Add Transaction',
-                style: AppTextStyles.heading(context),
+          return SafeArea(
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  widget.isEdit ? 'Edit Transaction' : 'Add Transaction',
+                  style: AppTextStyles.subHeading(context),
+                ),
               ),
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTypeToggle(),
-                    const SizedBox(height: 24),
-                    _buildAmountField(context),
-                    const SizedBox(height: 24),
-                    _buildCategorySection(context),
-                    const SizedBox(height: 24),
-                    _buildDatePicker(context),
-                    const SizedBox(height: 24),
-                    _buildNoteField(),
-                    const SizedBox(height: 32),
-                    _buildSubmitButton(context, state),
-                  ],
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTypeToggle(),
+                      const SizedBox(height: 24),
+                      _buildAmountField(context),
+                      const SizedBox(height: 24),
+                      _buildCategorySection(context),
+                      const SizedBox(height: 24),
+                      _buildDatePicker(context),
+                      const SizedBox(height: 24),
+                      _buildNoteField(),
+                      const SizedBox(height: 32),
+                      _buildSubmitButton(context, state),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -102,7 +127,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
@@ -197,19 +221,22 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       children: [
         Text(
           'Amount',
-          style: AppTextStyles.body(context).copyWith(fontWeight: FontWeight.w600),
+          style: AppTextStyles.body(
+            context,
+          ).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _amountCtrl,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: AppTextStyles.heading(context).copyWith(fontSize: 24, fontWeight: FontWeight.w700),
+          style: AppTextStyles.heading(
+            context,
+          ).copyWith(fontSize: 24, fontWeight: FontWeight.w700),
           decoration: InputDecoration(
             prefixText: '₹ ',
-            prefixStyle: AppTextStyles.heading(context).copyWith(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
+            prefixStyle: AppTextStyles.heading(
+              context,
+            ).copyWith(fontSize: 24, fontWeight: FontWeight.w700),
             hintText: '0.00',
           ),
           validator: (v) {
@@ -229,7 +256,9 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       children: [
         Text(
           'Category',
-          style: AppTextStyles.body(context).copyWith(fontWeight: FontWeight.w600),
+          style: AppTextStyles.body(
+            context,
+          ).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -247,14 +276,11 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primary.withOpacity(0.15)
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.15)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isSelected
-                        ? AppColors.primary
-                        : Theme.of(context).dividerColor,
-                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -270,7 +296,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: isSelected
-                            ? AppColors.primary
+                            ? Theme.of(context).colorScheme.primary
                             : Theme.of(context).colorScheme.outline,
                       ),
                     ),
@@ -290,7 +316,9 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       children: [
         Text(
           'Date',
-          style: AppTextStyles.body(context).copyWith(fontWeight: FontWeight.w600),
+          style: AppTextStyles.body(
+            context,
+          ).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -308,7 +336,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
             decoration: BoxDecoration(
               color: Theme.of(context).inputDecorationTheme.fillColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: Row(
               children: [
@@ -332,7 +359,9 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       children: [
         Text(
           'Note (optional)',
-          style: AppTextStyles.body(context).copyWith(fontWeight: FontWeight.w600),
+          style: AppTextStyles.body(
+            context,
+          ).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -347,43 +376,30 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   Widget _buildSubmitButton(BuildContext context, TransactionState state) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: state is TransactionLoading
-            ? null
-            : () {
-                if (_formKey.currentState!.validate()) {
-                  final transaction = Transaction(
-                    id: widget.transactionId ?? const Uuid().v4(),
-                    amount: double.parse(_amountCtrl.text),
-                    type: _type,
-                    category: _category,
-                    date: _date,
-                    note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
-                  );
-                  if (widget.isEdit) {
-                    context.read<TransactionBloc>().add(
-                      UpdateTransactionEvent(transaction),
-                    );
-                  } else {
-                    context.read<TransactionBloc>().add(
-                      AddTransactionEvent(transaction),
-                    );
-                  }
-                }
-              },
-        child: state is TransactionLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : Text(
-                widget.isEdit ? 'Update Transaction' : 'Add Transaction',
-                style: AppTextStyles.button(context),
-              ),
+      child: AppButton(
+        text: widget.isEdit ? 'Update Transaction' : 'Add Transaction',
+        loading: state is TransactionLoading,
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            final transaction = Transaction(
+              id: widget.transactionId ?? const Uuid().v4(),
+              amount: double.parse(_amountCtrl.text),
+              type: _type,
+              category: _category,
+              date: _date,
+              note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
+            );
+            if (widget.isEdit) {
+              context.read<TransactionBloc>().add(
+                UpdateTransactionEvent(transaction),
+              );
+            } else {
+              context.read<TransactionBloc>().add(
+                AddTransactionEvent(transaction),
+              );
+            }
+          }
+        },
       ),
     );
   }

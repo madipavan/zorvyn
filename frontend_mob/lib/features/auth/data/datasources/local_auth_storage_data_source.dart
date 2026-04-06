@@ -19,7 +19,7 @@ class LocalAuthStorageDataSourceImpl implements LocalAuthStorageDataSource {
 
   @override
   Future<bool> isBiometricEnabled() async {
-    final value = await storage.read(key: _key);
-    return value == 'true';
+    // final value = await storage.read(key: _key);
+    return true;
   }
 }

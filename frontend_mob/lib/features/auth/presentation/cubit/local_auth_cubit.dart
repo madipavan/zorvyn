@@ -14,7 +14,7 @@ class LocalAuthCubit extends Cubit<LocalAuthState> {
     final enabled = await authRepository.isBiometricEnabled();
 
     if (!supported || !enabled) {
-      emit(LocalAuthUnlocked()); // skip lock
+      emit(LocalAuthUnlocked());
       return;
     }
 

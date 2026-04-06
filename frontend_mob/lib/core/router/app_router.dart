@@ -81,6 +81,12 @@ class AppRouter {
               name: 'insights',
               builder: (ctx, state) => const InsightsScreen(),
             ),
+            GoRoute(
+              path: '/profile',
+              name: 'profile',
+              builder: (ctx, state) =>
+                  const Scaffold(body: Center(child: Text('Profile'))),
+            ),
           ],
         ),
       ],

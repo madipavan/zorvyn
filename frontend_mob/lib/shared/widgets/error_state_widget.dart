@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_mob/core/theme/app_theme.dart';
+import 'package:frontend_mob/core/theme/app_text_styles.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final String message;
@@ -19,7 +20,7 @@ class ErrorStateWidget extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.expense.withOpacity(0.1),
+                color: AppColors.expense.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -38,7 +39,7 @@ class ErrorStateWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              style: AppTextStyles.body(context).copyWith(
                 color: Theme.of(context).colorScheme.outline,
               ),
               textAlign: TextAlign.center,
