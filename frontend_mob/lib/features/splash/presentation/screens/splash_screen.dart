@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend_mob/features/auth/presentation/cubit/local_auth_cubit.dart';
 import 'package:go_router/go_router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -26,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _animationController.forward();
-
+    context.read<LocalAuthCubit>().checkAndAuthenticate();
     _navigateToNext();
   }
 

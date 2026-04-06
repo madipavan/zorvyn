@@ -5,7 +5,10 @@ import 'package:frontend_mob/core/router/app_router.dart';
 import 'package:frontend_mob/core/services/device_info_service.dart';
 import 'package:frontend_mob/core/theme/theme_cubit.dart';
 import 'package:frontend_mob/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:frontend_mob/features/auth/data/datasources/local_auth_datasource.dart';
+import 'package:frontend_mob/features/auth/data/datasources/local_auth_storage_data_source.dart';
 import 'package:frontend_mob/features/auth/data/repo/auth_repository_impl.dart';
+import 'package:frontend_mob/features/auth/presentation/cubit/local_auth_cubit.dart';
 import 'package:frontend_mob/features/dashboard/data/datasources/dashboard_remote_datasource.dart';
 import 'package:frontend_mob/features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:frontend_mob/features/dashboard/domain/repositories/i_dashboard_repository.dart';
@@ -23,6 +26,7 @@ import 'package:frontend_mob/features/transactions/data/repositories/transaction
 import 'package:frontend_mob/features/transactions/domain/repositories/i_transaction_repository.dart';
 import 'package:frontend_mob/features/transactions/presentation/bloc/transaction_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:local_auth/local_auth.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 
@@ -40,15 +44,25 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton<AppRouter>(
     () => AppRouter(getIt<FlutterSecureStorage>()),
   );
+  getIt.registerLazySingleton(() => LocalAuthentication());
   //AUTH
   getIt.registerFactory<AuthBloc>(
     () => AuthBloc(
       AuthRepositoryImpl(
         AuthRemoteDatasource(getIt<DioClient>(), getIt<FlutterSecureStorage>()),
         DeviceInfoService(getIt<DeviceInfoPlugin>()),
+        LocalAuthDataSourceImpl(getIt()),
+        LocalAuthStorageDataSourceImpl(getIt()),
       ),
     ),
   );
+  getIt.registerLazySingleton<LocalAuthDataSource>(
+    () => LocalAuthDataSourceImpl(getIt()),
+  );
+  getIt.registerLazySingleton<LocalAuthStorageDataSource>(
+    () => LocalAuthStorageDataSourceImpl(getIt()),
+  );
+  getIt.registerFactory(() => LocalAuthCubit(authRepository: getIt()));
   //DASHBOARD
   getIt.registerLazySingleton<IDashboardRemoteDatasource>(
     () => DashboardRemoteDatasource(getIt()),

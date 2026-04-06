@@ -67,7 +67,6 @@ class AuthRemoteDatasource implements IAuthRemoteDatasource {
       await _client.dio.post(ApiEnpoints.logout);
     } catch (_) {
     } finally {
-      print("--------------------------------");
       await _storage.deleteAll();
     }
   }
