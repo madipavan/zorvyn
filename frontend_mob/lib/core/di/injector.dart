@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_mob/core/network/dio_client.dart';
 import 'package:frontend_mob/core/router/app_router.dart';
 import 'package:frontend_mob/core/services/device_info_service.dart';
+import 'package:frontend_mob/core/services/notification_service.dart';
 import 'package:frontend_mob/core/theme/theme_cubit.dart';
 import 'package:frontend_mob/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:frontend_mob/features/auth/data/datasources/local_auth_datasource.dart';
@@ -42,6 +43,7 @@ Future<void> configureDependencies() async {
   getIt.registerSingleton<DeviceInfoService>(DeviceInfoService(getIt()));
   getIt.registerSingleton<DioClient>(DioClient(getIt<FlutterSecureStorage>()));
   getIt.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
+  getIt.registerLazySingleton<NotificationService>(() => NotificationService());
 
   getIt.registerLazySingleton<AppRouter>(
     () => AppRouter(getIt<FlutterSecureStorage>()),

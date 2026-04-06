@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend_mob/core/di/injector.dart';
 import 'package:frontend_mob/core/router/app_router.dart';
+import 'package:frontend_mob/core/services/notification_service.dart';
 import 'package:frontend_mob/features/auth/presentation/cubit/local_auth_cubit.dart';
 
 import 'core/theme/app_theme.dart';
@@ -10,6 +11,7 @@ import 'core/theme/theme_cubit.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
+  await getIt<NotificationService>().initialize();
   runApp(const FinanceApp());
 }
 

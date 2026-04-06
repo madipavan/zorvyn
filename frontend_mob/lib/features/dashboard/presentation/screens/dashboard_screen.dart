@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend_mob/core/di/injector.dart';
+import 'package:frontend_mob/core/widgets/app_snackbar.dart';
 import 'package:frontend_mob/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend_mob/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:frontend_mob/features/dashboard/presentation/bloc/dashboard_state.dart';
@@ -12,6 +13,7 @@ import 'package:frontend_mob/shared/widgets/error_state_widget.dart';
 import 'package:frontend_mob/shared/widgets/loading_shrimmer_list.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -86,6 +88,19 @@ class _DashboardView extends StatelessWidget {
         ),
       ),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_none_outlined),
+          onPressed: () async {
+            await getIt<NotificationService>().requestPermissions();
+            await getIt<NotificationService>().scheduleTestReminder();
+            if (context.mounted) {
+              AppSnackbar.show(
+                context,
+                'Test reminder scheduled for 5 seconds! 🔔',
+              );
+            }
+          },
+        ),
         BlocBuilder<ThemeCubit, ThemeMode>(
           builder: (context, themeMode) {
             return IconButton(
